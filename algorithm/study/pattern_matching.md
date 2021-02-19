@@ -25,7 +25,7 @@ text = 'zxcasdqwe'
 
 
 
-### KMP
+### KMP - 작동원리를 잘못이해한 버전
 
 > 평균 : O(m+n), 최악 : O(m+n)
 
@@ -121,6 +121,91 @@ def kmp(pattern, text):
 
 
 
+### KMP - 제대로된 KMP
+
+> 평균 : O(m+n), 최악 : O(m+n)
+
+**알고리즘 개요** : 패턴에서 각 인덱스까지의 시작과 끝을 조사해서 같은 경우가 있다면 건너뛸 때 거기까지만 건너뛰는 것
+
+**예시**
+
+```Python
+pattern = 'abcabe'
+text = 'abcabzxcaabc'
+```
+
+- pattern_preprocessed 구하기는 위와 동
+
+- pattern 인식 부분에서 위(잘못이해한 버전)의 경우에는 text를 순회(i)하다 뒤로 돌아가는 과정(-j)을 반복하며 진행되었는데, 다시 생각해보면  뒤로 돌아가지말고, pattern의 인덱스(j)를 앞으로 땡기면 되는 문제였다. 즉 위의 경우 i=5 (text[5] = 'z')인 지점에서 불일치가 발생하므로 i를  pattern[5]=2 만큼 뒤로 옮기는게 아니라 순회하고있던 패턴의 인덱스(j)를 2(pattern_preprocessed [2] = 'c')로 옮기고 i=5와 비교하면 되는 것이다. 
+
+  또한 위에서 구한 pattern_preprocessed의 길이는 7로 pattern의 길이보다 1 긴데, 사실 pattern_preprocessed[6]은 사용될 일이 없다는것을 알 수 있다.('abcabe' 까지 일치하면 그 패턴이 존재하는 것이므로) 그래서 pattern_preprocessed = [0, 0, 0, 0, 1, 2] 가 된다.(여기서는 0번째 인덱스가 -1일 필요도 없다)
+
+- 실행과정
+
+  1. i(text index) 와 j(pattern index)가 한칸씩 차례로 가다가 5에서 불일치 확인
+  2. i는 5로 유지되고, j는 pattern_preprocessed[5] = 2로 가서 text[5], pattern[2]가 같은지 확인하고, 또 불일치했으므로 i는 1증가하고 j는 0부터 다시 시작
+  3. 만약 text[5] = 'c'로, pattern[2]와 일치했다면 text[6], pattern[3]을 비교해나가며 진행
+
+  과정 1,2,3을 반복하며 진행한다. 이때 i는 매단계 적어도 한칸씩 나아가고, 각 단계마다 pattern을 확인하는 경우도 상수시간에 진행됨을 알 수 있다. 따라서 최악의 시간복잡도는 O(m+n)으로 주어진다.
+
+**Code**
+
+```Python
+def kmp(pattern, text):
+    """
+    text에 pattern이 존재하는지 판단(KMP)
+    :param pattern: str
+    :param text: str
+    :return: bool(o or 1)
+    """
+
+    def preprocess_pattern(pattern):
+        """
+        패턴을 입력받아 전처리를 하는 과정
+        해당 인덱스는 몇번 뒤로 돌아가야하는지를 의미함
+        :param pattern: str
+        :return: list
+        """
+        pattern_preprocessed = [0]
+        for i in range(1, len(pattern)):
+            sub_pattern = pattern[:i]
+            j = len(sub_pattern) // 2
+            while j > 0:
+                if sub_pattern[:j] == sub_pattern[-j:]:
+                    break
+                j -= 1
+            pattern_preprocessed.append(j)
+        return pattern_preprocessed
+
+    pattern_preprocessed = preprocess_pattern(pattern)
+    text_len = len(text)
+    pattern_len = len(pattern)
+
+    if pattern_len > text_len:  # 패턴이 더 긴 경우
+        return 0
+
+    i = 0
+    j = 0
+    while i < text_len:  # text에서 pattern을 찾을 수 있는 마지막 인덱스까지 i가 돈다
+        if text[i] == pattern[j]:  # 값이 같으면 계속 돌자
+            i += 1
+            j += 1
+        else:
+            if text[i] == pattern[pattern_preprocessed[j]]:  # i는 그대로두고 j만 변환
+                i += 1
+                j = pattern_preprocessed[j] + 1
+            else:
+                i += 1
+                j = 0
+        if j == pattern_len:  # pattern 끝까지 일치했을 경우
+            return 1
+    return 0
+```
+
+
+
+
+
 ### 보이어-무어
 
 > 평균 : O(m+n), 최악 : O(mn)
@@ -200,4 +285,36 @@ def bomu(pattern, text):
 
 
 
-### 나중에 속도 Check!
+### 속도 Check
+
+```Python
+def make_test(pn, tn):
+    pattern = ''
+    text = ''
+    for i in range(pn):
+        pattern += chr(random.randint(ord('A'), ord('z')))
+    for i in range(tn):
+        text += chr(random.randint(ord('A'), ord('z')))
+    return pattern, text
+
+pattern, text = make_test(10000, 100000)
+start = time()
+result = pattern in text
+print('내장함수 결과: ', time() - start)
+
+start = time()
+result = kmp(pattern, text)
+print('KMP 결과: ', time() - start)
+
+start = time()
+result = kmp_wrong(pattern, text)
+print('KMP_wrong 결과: ', time() - start)
+
+start = time()
+result = bomu(pattern, text)
+print('보이어-무어 결과: ', time() - start)
+```
+
+![image-20210219134833449](pattern_matching.assets/image-20210219134833449.png)
+
+내장함수가 압도적으로빠르고, 보이어-무어가 KMP에 비해 빠름을 알 수 있다.
