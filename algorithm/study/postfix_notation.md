@@ -28,12 +28,16 @@
 **Process**
 
 1. 스택과 최종 결과를 담을 result(string)을 준비한다.
-
 2. 중위표기식을 for문으로 돌며 숫자는 그대로 result에 쌓아간다
-
 3. 우선순위가 높은 연산자 (* > +)가 후위표기식에서 먼저등장해야하므로 스택에 나중에 들어가게 쌓는다.(만약 스택에 있는 연산자가 들어가야할 연산자보다 우선순위가 같거나 높으면 pop해서 result에 쌓는다)
 4. '('의 경우 스택내부에서는 우선순위가 가장 낮고, 외부에서는 우선순위가 가장 높은것으로 취급하며(즉 등장하면 무조건 스택에 쌓는다) result에는 쌓지 않는다.
 5. ')'이 등장하면 '('이 등장할때까지 스택을 pop하고 result에 쌓는다.
+
+## 후위표기법 계산
+
+**Process**
+
+후위표기식을 앞에서부터 읽으며 숫자면 스택에 push하고 연산자면 push된 숫자 2개를 pop하며 연산 
 
 ## Code
 
@@ -71,6 +75,11 @@ class Stack:
 
 
 def jung_to_hu(jung):
+    """
+    중위표기식 -> 후위표기식
+    :param jung: str
+    :return: str
+    """
     stack = Stack()
     result = ''
     isp = {'(': 0, '+': 1, '-': 1, '*': 2, '/': 2}  # 스택 안의 우선순위
@@ -108,5 +117,33 @@ def jung_to_hu(jung):
 string = '((5+2)*(3-5)+7)/(3*2+5)'
 result = jung_to_hu(string)
 print(result)
+
+
+def calculate(hu):
+    """
+    후위연산자를 입력받아 최종 결과 반환
+    :param hu: str
+    :return: str
+    """
+    stack = []
+    for s in hu:
+        if s.isdigit():
+            stack.append(s)
+        else:
+            first = int(stack.pop())
+            second = int(stack.pop())
+            if s == '+':
+                stack.append(first + second)
+            elif s == '-':
+                stack.append(second - first)  # 먼저 들어간것 - 나중에 들어간것
+            elif s == '*':
+                stack.append(first * second)
+            elif s == '/':
+                stack.append(second / first)
+
+    return stack.pop()  # 마지막에 들어있는게 최종 값
+
+
+print(calculate(result))
 ```
 

@@ -10,7 +10,7 @@
 1. 시작점 v 방문
 2. v에서 갈수있는 노드들중 방문하지않은 노드를 stack에 push
 3. stack의 원소를 pop해서 v로 지정하고, 2의 과정을 반복
-4. 스택이 공백이 될 때까지 반복
+4. stack이 공백이 될 때까지 반복
 
 **이런 process도 있다. visit 순서는 같지만 stack에 쌓이는 과정이 다름**
 
@@ -111,7 +111,7 @@ print('dfs2 : ', time() - start)
 
 
 
-![image-20210223154539108](dfs.assets/image-20210223154539108.png)
+![image-20210223154539108](images/image-20210223154539108.png)
 
 - dfs1 : 스택이용 / dfs2 : 재귀 이용 
 

@@ -315,6 +315,6 @@ result = bomu(pattern, text)
 print('보이어-무어 결과: ', time() - start)
 ```
 
-![image-20210219134833449](pattern_matching.assets/image-20210219134833449.png)
+![image-20210219134833449](images/image-20210219134833449.png)
 
 내장함수가 압도적으로빠르고, 보이어-무어가 KMP에 비해 빠름을 알 수 있다.

@@ -90,7 +90,7 @@ print('pop 1,000,000 - stack2: ', time() - start)
 
 
 
-![image-20210223152125643](stack.assets/image-20210223152125643.png)
+![image-20210223152125643](images/image-20210223152125643.png)
 
 - stack1이 list append사용, stack2가 list index를 사용한 것이다.
 
